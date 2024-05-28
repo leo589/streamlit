@@ -1,17 +1,49 @@
 import streamlit as st
 
-# Título da página
-st.title("Streamlit YouTube Video Player")
+# Função para carregar dados de um arquivo .txt
+def load_data(file_name):
+    try:
+        with open(file_name, "r") as file:
+            data = file.readlines()
+        return [line.strip().split(",") for line in data]
+    except FileNotFoundError:
+        return []
 
-# Entrada de texto para o link do YouTube
-youtube_url = st.text_input("Insira o link do YouTube")
+# Função para salvar dados em um arquivo .txt
+def save_data(file_name, data):
+    with open(file_name, "w") as file:
+        for entry in data:
+            file.write(",".join(entry) + "\n")
 
-# Verifica se o URL foi inserido
-if youtube_url:
-    # Exibe o vídeo
-    st.video(youtube_url)
-else:
-    st.write("Por favor, insira um link válido do YouTube.")
+# Função para adicionar um aluno
+def add_student(name, age, grade, file_name="students.txt"):
+    students = load_data(file_name)
+    students.append([name, str(age), grade])
+    save_data(file_name, students)
 
-# Para rodar essa aplicação, salve este código em um arquivo app.py
-# e execute o comando 'streamlit run app.py' no terminal.
+# Função para listar alunos
+def list_students(file_name="students.txt"):
+    return load_data(file_name)
+
+# Interface Streamlit
+st.title("Gerenciamento Escolar")
+
+menu = st.sidebar.selectbox("Menu", ["Adicionar Aluno", "Listar Alunos"])
+
+if menu == "Adicionar Aluno":
+    st.header("Adicionar Aluno")
+    name = st.text_input("Nome")
+    age = st.number_input("Idade", min_value=1, max_value=100, step=1)
+    grade = st.selectbox("Série", ["1ª Série", "2ª Série", "3ª Série"])
+    if st.button("Adicionar"):
+        add_student(name, age, grade)
+        st.success("Aluno adicionado com sucesso!")
+
+elif menu == "Listar Alunos":
+    st.header("Lista de Alunos")
+    students = list_students()
+    if students:
+        df = pd.DataFrame(students, columns=["Nome", "Idade", "Série"])
+        st.dataframe(df)
+    else:
+        st.write("Nenhum aluno cadastrado.")

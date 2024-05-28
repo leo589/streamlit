@@ -1,21 +1,17 @@
 import streamlit as st
 
-# Dicionário para armazenar os usuários registrados
-registered_users = {}
-
 # Função para registrar um novo usuário
 def register_user(username, password):
-    if username not in registered_users:
-        registered_users[username] = password
-        return True
-    else:
-        return False
+    with open("users.txt", "a") as file:
+        file.write(f"{username},{password}\n")
 
 # Função para autenticar um usuário
 def authenticate_user(username, password):
-    if username in registered_users:
-        if registered_users[username] == password:
-            return True
+    with open("users.txt", "r") as file:
+        for line in file:
+            stored_username, stored_password = line.strip().split(",")
+            if stored_username == username and stored_password == password:
+                return True
     return False
 
 # Interface Streamlit
@@ -27,10 +23,8 @@ username = st.text_input("Nome de Usuário")
 password = st.text_input("Senha", type="password")
 if option == "Registro":
     if st.button("Registrar"):
-        if register_user(username, password):
-            st.success("Registro bem-sucedido!")
-        else:
-            st.error("Nome de usuário já registrado")
+        register_user(username, password)
+        st.success("Registro bem-sucedido!")
 elif option == "Login":
     if st.button("Entrar"):
         if authenticate_user(username, password):
@@ -42,7 +36,7 @@ elif option == "Login":
 # Componentes para envio e recebimento de mensagens
 if st.session_state.get("logged_in", False):
     st.subheader("Conversa")
-    recipient = st.selectbox("Enviar mensagem para:", list(registered_users.keys()))
+    recipient = st.selectbox("Enviar mensagem para:", ["Usuário1", "Usuário2", "Usuário3"])
     message = st.text_input("Mensagem")
     if st.button("Enviar"):
         st.success(f"Mensagem enviada para {recipient}: {message}")

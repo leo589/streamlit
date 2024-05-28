@@ -1,5 +1,5 @@
 import streamlit as st
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # Certifique-se de que este import está correto
 
 def main():
     st.title("Conversor de HTML e CSS para Página Streamlit")

@@ -13,10 +13,10 @@ def register_user(username, password):
 
 # Função para autenticar um usuário
 def authenticate_user(username, password):
-    if username in registered_users and registered_users[username] == password:
-        return True
-    else:
-        return False
+    if username in registered_users:
+        if registered_users[username] == password:
+            return True
+    return False
 
 # Interface Streamlit
 st.title("Chat em Tempo Real")

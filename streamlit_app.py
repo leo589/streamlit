@@ -18,7 +18,6 @@ def login_page():
 
     if st.button("Login"):
         if login(username, password):
-            st.success("Login successful!")
             return True
         else:
             st.error("Invalid username or password.")
@@ -32,11 +31,15 @@ def movie_selection():
     # Aqui você pode adicionar o código para exibir os filmes disponíveis e permitir que o usuário faça sua seleção.
 
 def main():
-    if not login_page():
-        return
-    st.success("Redirecting to Movie Selection...")
-    st.write("Please wait...")
-    movie_selection()
+    page = st.sidebar.radio("Choose a page", ["Login", "Movie Selection"])
+
+    if page == "Login":
+        if login_page():
+            st.success("Login successful!")
+            st.write("Redirecting to Movie Selection...")
+            movie_selection()
+    elif page == "Movie Selection":
+        movie_selection()
 
 if __name__ == "__main__":
     main()

@@ -34,7 +34,8 @@ def movie_selection():
 def main():
     if not login_page():
         return
-
+    st.success("Redirecting to Movie Selection...")
+    st.write("Please wait...")
     movie_selection()
 
 if __name__ == "__main__":

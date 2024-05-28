@@ -1,11 +1,12 @@
 import streamlit as st
+import pandas as pd
 
 # Função para carregar dados de um arquivo .txt
 def load_data(file_name):
     try:
         with open(file_name, "r") as file:
-            data = file.readlines()
-        return [line.strip().split(",") for line in data]
+            data = [line.strip().split(",") for line in file.readlines()]
+        return data
     except FileNotFoundError:
         return []
 
@@ -23,7 +24,11 @@ def add_student(name, age, grade, file_name="students.txt"):
 
 # Função para listar alunos
 def list_students(file_name="students.txt"):
-    return load_data(file_name)
+    students = load_data(file_name)
+    if students:
+        return pd.DataFrame(students, columns=["Nome", "Idade", "Série"])
+    else:
+        return pd.DataFrame(columns=["Nome", "Idade", "Série"])
 
 # Interface Streamlit
 st.title("Gerenciamento Escolar")
@@ -41,9 +46,8 @@ if menu == "Adicionar Aluno":
 
 elif menu == "Listar Alunos":
     st.header("Lista de Alunos")
-    students = list_students()
-    if students:
-        df = pd.DataFrame(students, columns=["Nome", "Idade", "Série"])
+    df = list_students()
+    if not df.empty:
         st.dataframe(df)
     else:
         st.write("Nenhum aluno cadastrado.")

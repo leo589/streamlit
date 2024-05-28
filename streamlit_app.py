@@ -1,46 +1,48 @@
 import streamlit as st
-
-# Função para verificar o login
-def login(username, password):
-    with open("users.txt", "r") as file:
-        for line in file:
-            stored_username, stored_password = line.strip().split(",")
-            if username == stored_username and password == stored_password:
-                return True
-    return False
-
-# Função para a tela de login
-def login_page():
-    st.title("Login")
-
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        if login(username, password):
-            return True
-        else:
-            st.error("Invalid username or password.")
-    return False
-
-# Função para a tela de seleção de filmes
-def movie_selection():
-    st.title("Movie Selection")
-    st.write("Welcome to our movie selection!")
-
-    # Aqui você pode adicionar o código para exibir os filmes disponíveis e permitir que o usuário faça sua seleção.
+from bs4 import BeautifulSoup
 
 def main():
-    page = st.sidebar.radio("Choose a page", ["Login", "Movie Selection"])
+    st.title("Conversor de HTML e CSS para Página Streamlit")
 
-    if page == "Login":
-        if login_page():
-            st.success("Login successful!")
-            st.write("Redirecting to Movie Selection...")
-            movie_selection()
-            st.empty()  # Esconde a tela de login
-    elif page == "Movie Selection":
-        movie_selection()
+    # Área de texto para entrada do HTML
+    html_input = st.text_area("Insira o código HTML aqui:", height=300)
+    # Área de texto para entrada do CSS
+    css_input = st.text_area("Insira o código CSS aqui:", height=100)
+
+    if st.button("Converter e Renderizar"):
+        if html_input:
+            # Converter HTML para elementos Streamlit
+            render_html(html_input, css_input)
+        else:
+            st.warning("Por favor, insira o código HTML para conversão.")
+
+def render_html(html_code, css_code):
+    # Usando BeautifulSoup para processar o HTML
+    soup = BeautifulSoup(html_code, 'html.parser')
+
+    # Aplica estilos CSS (embora limitado em Streamlit)
+    if css_code:
+        st.markdown(f"<style>{css_code}</style>", unsafe_allow_html=True)
+
+    # Renderizar elementos HTML individualmente
+    for element in soup.body:
+        if element.name == "h1":
+            st.header(element.text)
+        elif element.name == "h2":
+            st.subheader(element.text)
+        elif element.name == "p":
+            st.write(element.text)
+        elif element.name == "img":
+            img_src = element.get('src')
+            if img_src:
+                st.image(img_src)
+        elif element.name == "a":
+            link_text = element.text
+            link_href = element.get('href')
+            if link_href:
+                st.markdown(f"[{link_text}]({link_href})", unsafe_allow_html=True)
+        else:
+            st.markdown(str(element), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

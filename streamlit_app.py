@@ -38,6 +38,7 @@ def main():
             st.success("Login successful!")
             st.write("Redirecting to Movie Selection...")
             movie_selection()
+            st.empty()  # Esconde a tela de login
     elif page == "Movie Selection":
         movie_selection()
 

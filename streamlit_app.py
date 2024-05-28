@@ -14,6 +14,23 @@ def authenticate_user(username, password):
                 return True
     return False
 
+# Função para enviar uma mensagem
+def send_message(sender, recipient, message):
+    with open(f"{sender}_messages.txt", "a") as file:
+        file.write(f"{recipient}:{message}\n")
+
+# Função para obter mensagens recebidas por um usuário
+def get_messages(username):
+    messages = []
+    try:
+        with open(f"{username}_messages.txt", "r") as file:
+            for line in file:
+                recipient, message = line.strip().split(":")
+                messages.append((recipient, message))
+    except FileNotFoundError:
+        pass
+    return messages
+
 # Interface Streamlit
 st.title("Chat em Tempo Real")
 
@@ -29,6 +46,7 @@ elif option == "Login":
     if st.button("Entrar"):
         if authenticate_user(username, password):
             st.session_state.logged_in = True
+            st.session_state.username = username
             st.success("Login bem-sucedido!")
         else:
             st.error("Usuário ou senha incorretos")
@@ -36,12 +54,17 @@ elif option == "Login":
 # Componentes para envio e recebimento de mensagens
 if st.session_state.get("logged_in", False):
     st.subheader("Conversa")
-    recipient = st.selectbox("Enviar mensagem para:", ["Usuário1", "Usuário2", "Usuário3"])
+    
+    # Lista de usuários registrados
+    registered_users = [line.strip().split(",")[0] for line in open("users.txt", "r")]
+    recipient = st.selectbox("Enviar mensagem para:", registered_users)
+    
     message = st.text_input("Mensagem")
     if st.button("Enviar"):
-        st.success(f"Mensagem enviada para {recipient}: {message}")
-
-# Lógica para mudar para uma conversa diferente
-change_conversation = st.button("Mudar de Conversa")
-if change_conversation:
-    st.session_state.logged_in = not st.session_state.logged_in
+        send_message(st.session_state.username, recipient, message)
+        st.success(f"Mensagem enviada para {recipient}")
+    
+    st.subheader("Mensagens Recebidas")
+    messages = get_messages(st.session_state.username)
+    for sender, message in messages:
+        st.write(f"{sender}: {message}")
